@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="@drawable/tech"
+    android:layout_height="match_parent"
+    tools:context=".CaptureActivity">
+
+    <Button
+        android:id="@+id/buttonRegis"
+        android:layout_width="107dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="240dp"
+        android:layout_marginTop="80dp"
+        android:text="Register"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewAva" />
+
+    <Button
+        android:id="@+id/buttonCap"
+        android:layout_width="107dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="80dp"
+        android:text="Capture Image"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageViewAva" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/imageViewAva"
+        android:layout_width="301dp"
+        android:layout_height="325dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="132dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="222dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="48dp"
+        android:background="@color/white"
+        android:ems="10"
+        android:hint="Enter your name"
+        android:inputType="textPersonName"
+        android:textColor="#E91E63"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
