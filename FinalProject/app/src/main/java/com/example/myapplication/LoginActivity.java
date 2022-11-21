@@ -4,6 +4,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
@@ -24,12 +25,25 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.myapplication.api.ApiService;
+import com.example.myapplication.model.user;
+
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -42,6 +56,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = MainActivity.class.getName();
     private static final int CONTENT_REQUEST=1337;
     private File output=null;
+    String imageUser;
 
     private ActivityResultLauncher<Intent> mActivivityResultLauncher=registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -60,6 +75,7 @@ public class LoginActivity extends AppCompatActivity {
                         try {
                             Bitmap bitmap= MediaStore.Images.Media.getBitmap(getContentResolver(),uri);
                             imageViewAva.setImageBitmap(bitmap);
+                            imageUser=ConvertToString.ConvertToString(bitmap);
                         }
                         catch (IOException e)
                         {
@@ -89,8 +105,26 @@ public class LoginActivity extends AppCompatActivity {
         buttonVerify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
-                startActivity(intent);
+                user userModel=new user( imageUser);
+                ApiService.apiService.requestImageUser(userModel).enqueue(new Callback<user>() {
+                    @Override
+                    public void onResponse(Call<user> call, Response<user> response) {
+                        if(response.body().getMessage().contains("recognize success"))
+                        {
+                            Toast.makeText(LoginActivity.this,"Login Success",Toast.LENGTH_LONG).show();
+                            Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
+                            //intent.putExtra("nameUser",user); push username
+                            startActivity(intent);
+                        }
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<user> call, Throwable t) {
+                            Toast.makeText(LoginActivity.this,"Login Fail",Toast.LENGTH_LONG).show();
+                    }
+                });
+
             }
         });
     }
@@ -155,8 +189,7 @@ public class LoginActivity extends AppCompatActivity {
                 // data dau ra
                 Bitmap bp = (Bitmap) data.getExtras().get("data");
                 this.imageViewAva.setImageBitmap(bp);
-
-                System.out.println("data :" +  ConvertToString.ConvertToString(bp));
+                imageUser=ConvertToString.ConvertToString(bp);
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "Action canceled", Toast.LENGTH_LONG).show();
             } else {

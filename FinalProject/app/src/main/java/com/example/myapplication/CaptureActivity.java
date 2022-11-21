@@ -24,16 +24,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.myapplication.api.ApiService;
+import com.example.myapplication.model.user;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CaptureActivity extends AppCompatActivity {
 
 
-    Button buttonCapture,buttonRegis;
+    Button buttonCapture,buttonRegis,buttonRecognition;
     ImageView imageAva;
-    EditText enterName;
+    EditText textEnterName;
     Bitmap imageBitmap;
+    String stringImage;
 
     private static final int REQUEST_ID_READ_WRITE_PERMISSION = 99;
     private static final int REQUEST_ID_IMAGE_CAPTURE = 100;
@@ -50,9 +57,36 @@ public class CaptureActivity extends AppCompatActivity {
     void Init(){
         buttonCapture=findViewById(R.id.buttonCap);
         imageAva=findViewById(R.id.imageViewAva);
-       enterName=findViewById(R.id.editTextName);
+        textEnterName=findViewById(R.id.editTextName);
         buttonRegis=findViewById(R.id.buttonRegis);
+        buttonRecognition=findViewById(R.id.buttonrecognition);
 
+    }
+    void recognitionCLick(){
+        buttonRecognition.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                user userModel=new user(stringImage);
+                ApiService.apiService.requestImageUser(userModel).enqueue(new Callback<user>() {
+                    @Override
+                    public void onResponse(Call<user> call, Response<user> response) {
+                        if(response.body().getMessage().contains("recognize success"))
+                        {
+                            Toast.makeText(CaptureActivity.this,"Register Success",Toast.LENGTH_LONG).show();
+                            Intent intent=new Intent(CaptureActivity.this,HomeActivity.class);
+                            intent.putExtra("nameUser",textEnterName.getText().toString());
+                            startActivity(intent);
+                        }
+
+                    }
+
+                    @Override
+                    public void onFailure(Call<user> call, Throwable t) {
+                        Toast.makeText(CaptureActivity.this,"Register Fail",Toast.LENGTH_LONG).show();
+                    }
+                });
+            }
+        });
     }
     void pushImageToFirebase()
     {
@@ -91,6 +125,7 @@ public class CaptureActivity extends AppCompatActivity {
                 // data dau ra
                 imageBitmap = (Bitmap) data.getExtras().get("data");
                 this.imageAva.setImageBitmap(imageBitmap);
+                stringImage=ConvertToString.ConvertToString(imageBitmap);
             } else if (resultCode == RESULT_CANCELED) {
                 Toast.makeText(this, "Action canceled", Toast.LENGTH_LONG).show();
             } else {
@@ -100,13 +135,13 @@ public class CaptureActivity extends AppCompatActivity {
     }
     void pushDataToFireBase(){
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef2 = database.getReference("user/"+enterName.getText().toString()+"/Name");
-        myRef2.setValue(enterName.getText().toString());
+        DatabaseReference myRef2 = database.getReference("user/"+textEnterName.getText().toString()+"/Name");
+        myRef2.setValue(textEnterName.getText().toString());
 
     }
     void pushNameToFireBase(){
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("user/"+enterName.getText().toString()+"/Image");
+        DatabaseReference myRef = database.getReference("user/"+textEnterName.getText().toString()+"/Image");
         myRef.setValue(ConvertToString.ConvertToString(imageBitmap).toString());
     }
 
