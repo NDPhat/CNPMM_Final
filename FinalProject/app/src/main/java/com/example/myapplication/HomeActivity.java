@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -29,7 +30,11 @@ public class HomeActivity extends AppCompatActivity {
     {
         buttonLogout=findViewById(R.id.buttonLogout);
         textWelcome=findViewById(R.id.textViewWelcome);
-        Intent intent=new Intent();
-        textWelcome.setText(intent.getStringExtra("nameUser"));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        textWelcome.setText("Welcome "+data.getStringExtra("userName"));
     }
 }

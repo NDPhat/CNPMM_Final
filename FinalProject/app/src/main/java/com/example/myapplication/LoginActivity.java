@@ -29,7 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.api.ApiService;
-import com.example.myapplication.model.user;
+import com.example.myapplication.model.UserRequest;
 
 import org.json.JSONObject;
 
@@ -105,23 +105,29 @@ public class LoginActivity extends AppCompatActivity {
         buttonVerify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                user userModel=new user( imageUser);
-                ApiService.apiService.requestImageUser(userModel).enqueue(new Callback<user>() {
+                UserRequest userRequest=new UserRequest(imageUser);
+                ApiService.apiService.requestLoginUser(userRequest).enqueue(new Callback<UserRequest>() {
                     @Override
-                    public void onResponse(Call<user> call, Response<user> response) {
-                        if(response.body().getMessage().contains("recognize success"))
-                        {
-                            Toast.makeText(LoginActivity.this,"Login Success",Toast.LENGTH_LONG).show();
-                            Intent intent=new Intent(LoginActivity.this,HomeActivity.class);
-                            //intent.putExtra("nameUser",user); push username
+                    public void onResponse(Call<UserRequest> call, Response<UserRequest> response) {
+                        UserRequest useResult=response.body();
+                        if (useResult!=null) {
+                            Toast.makeText(LoginActivity.this, "Login Success", Toast.LENGTH_LONG).show();
+                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                            intent.putExtra("userName", useResult.getMessage().toString());
                             startActivity(intent);
+                        }
+                        else
+                        {
+                            Toast.makeText(LoginActivity.this, "ERROR API!!", Toast.LENGTH_LONG).show();
+
                         }
 
                     }
 
                     @Override
-                    public void onFailure(Call<user> call, Throwable t) {
-                            Toast.makeText(LoginActivity.this,"Login Fail",Toast.LENGTH_LONG).show();
+                    public void onFailure(Call<UserRequest> call, Throwable t) {
+                        Toast.makeText(LoginActivity.this,"Login Fail",Toast.LENGTH_LONG).show();
+
                     }
                 });
 
