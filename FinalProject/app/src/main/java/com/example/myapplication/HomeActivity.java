@@ -30,11 +30,10 @@ public class HomeActivity extends AppCompatActivity {
     {
         buttonLogout=findViewById(R.id.buttonLogout);
         textWelcome=findViewById(R.id.textViewWelcome);
+        Bundle bundle = getIntent().getExtras();
+        String message = bundle.getString("userName");
+        textWelcome.setText("Welcome "+message);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        textWelcome.setText("Welcome "+data.getStringExtra("userName"));
-    }
+
 }

@@ -33,10 +33,12 @@ import com.example.myapplication.model.UserRequest;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -74,8 +76,11 @@ public class LoginActivity extends AppCompatActivity {
                         Uri uri=data.getData();
                         try {
                             Bitmap bitmap= MediaStore.Images.Media.getBitmap(getContentResolver(),uri);
+                            ByteArrayOutputStream out = new ByteArrayOutputStream();
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                            Bitmap decoded = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
                             imageViewAva.setImageBitmap(bitmap);
-                            imageUser=ConvertToString.ConvertToString(bitmap);
+                            imageUser=ConvertToString.ConvertToString(decoded);
                         }
                         catch (IOException e)
                         {
@@ -111,10 +116,41 @@ public class LoginActivity extends AppCompatActivity {
                     public void onResponse(Call<UserRequest> call, Response<UserRequest> response) {
                         UserRequest useResult=response.body();
                         if (useResult!=null) {
-                            Toast.makeText(LoginActivity.this, "Login Success", Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                            intent.putExtra("userName", useResult.getMessage().toString());
-                            startActivity(intent);
+                            String[] arrayRes=useResult.getMessage().split(" ");
+                            System.out.println(useResult.getMessage());
+                            String  name="";
+                            double rate=0;
+                            try{
+                                rate= Double.parseDouble(arrayRes[arrayRes.length-1]);
+                            } catch(NumberFormatException ex){
+                                System.out.println(ex);// handle your exception
+                            }
+                            if(rate < 0.35) {
+                                for (int i = 0; i < arrayRes.length; i++) {
+                                    if (i != 0 && i != 1 && i != (arrayRes.length - 1)) {
+                                        name = name + arrayRes[i] + " ";
+                                    }
+                                }
+
+                                Toast.makeText(LoginActivity.this, "Login Success", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                name = name.trim();
+                                intent.putExtra("userName", name);
+                                startActivity(intent);
+                            }
+                            else if (rate > 0.35 && rate <0.5)
+                            {
+                                Toast.makeText(LoginActivity.this, "The photo is not good, you need to take it in better condition", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+                            else
+                            {
+                                Toast.makeText(LoginActivity.this, "Login Fail", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                            }
+
                         }
                         else
                         {
